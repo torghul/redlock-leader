@@ -15,5 +15,8 @@ const leader = new RedlockLeader({clients: [client]});
 leader.on('elected', () => console.log('ELECTED', new Date()));
 leader.on('revoked', () => console.log('REVOKED', new Date()));
 leader.on('extended', () => console.log('EXTENDED', new Date()));
+leader.on('error', (e) => console.log('ERROR', new Date(), e));
 
 leader.start();
+
+//console.log('Instance leader status is', leader.isLeader);
