@@ -9,7 +9,7 @@ npm install --save https://github.com/torghul/redlock-leader.git
 
 ## Usage
 ``` javascript
-const RedlockLeader = require('./index');
+const RedlockLeader = require('redlock-leader');
 const client = require('redis').createClient({
   host: process.env.REDIS_HOST || '127.0.0.1',
   port: 6379,
