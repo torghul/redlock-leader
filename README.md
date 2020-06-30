@@ -25,7 +25,7 @@ const leader = new RedlockLeader({
   clients: [client], {
     ttl: 10000,
     wait: 1000,
-    key: 'my-leader-key
+    key: 'my-leader-key'
 }});
 
 leader.on('elected', () => console.log(`${process.pid} ${new Date()} Instance is elected as leader.`));
