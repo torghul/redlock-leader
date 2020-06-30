@@ -18,6 +18,7 @@
   "author": "Zafer Yaman",
   "license": "ISC",
   "dependencies": {
+    "debug": "^4.1.1",
     "redlock": "^4.1.0"
   },
   "devDependencies": {

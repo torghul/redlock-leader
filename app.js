@@ -10,12 +10,12 @@ const client = require('redis').createClient({
   }
 });
 
-const leader = new RedlockLeader({clients: [client]});
+const leader = new RedlockLeader([client], {});
 
-leader.on('elected', () => console.log('ELECTED', new Date()));
-leader.on('revoked', () => console.log('REVOKED', new Date()));
-leader.on('extended', () => console.log('EXTENDED', new Date()));
-leader.on('error', (e) => console.log('ERROR', new Date(), e));
+leader.on('elected', () => console.log(`${process.pid} ${new Date()} ELECTED`));
+leader.on('revoked', () => console.log(`${process.pid} ${new Date()} REVOKED`));
+leader.on('extended', () => console.log(`${process.pid} ${new Date()} EXTENDED`));
+leader.on('error', (e) => console.log(`${process.pid} ${new Date()} ERROR`, e));
 
 leader.start();
 

@@ -1,8 +1,10 @@
 const EventEmitter = require('events');
 const Redlock = require('redlock');
 
+const debug = require('debug')('redlock-leader');
+
 /**
- * Cluster leader selection using redlock algorithm.
+ * Cluster leader selection using redis redlock algorithm.
  *
  * @fires RedlockLeader.elected
  * @fires RedlockLeader.extended
@@ -13,14 +15,18 @@ class RedlockLeader extends EventEmitter {
   /**
    * Create a redlock leader selector class instance.
    *
+   * @param {Array} clients an array holding redis client connections
    * @param {Object} options
-   * @param {Array} options.clients an array holding redis client connections
    * @param {number} [options.ttl] time to live in milliseconds for the key, defaults to 10000
    * @param {number} [options.wait] time to wait in milliseconds to retry to get elected as the leader, defaults to 1000
    * @param {string} [options.key] redis key, defaults to redlock-leader
    */
-  constructor(options) {
+  constructor(clients, options) {
     super();
+
+    if(!options){
+      options = {};
+    }
 
     this._isLeader = false;
     this.lock = null;
@@ -29,7 +35,7 @@ class RedlockLeader extends EventEmitter {
     this.key = options.key || 'redlock-leader';
     this.timeout = null;
 
-    this.redlock = new Redlock(options.clients, {
+    this.redlock = new Redlock(clients, {
       driftFactor: 0.01,
       retryCount: 0,
       retryDelay: 200,
@@ -37,7 +43,10 @@ class RedlockLeader extends EventEmitter {
     });
 
     this.redlock.on('clientError', (error) => {
-      this.emit('error', {error});
+      debug('Error from redis client. Error: %o', error);
+      if(this.listenerCount('error') > 0) {
+        this.emit('error', {error});
+      }
     });
   }
 
@@ -65,9 +74,7 @@ class RedlockLeader extends EventEmitter {
 
     if (lock) {
       if (!this.lock) {
-        this._isLeader = true;
-        this.lock = lock;
-        this.emit('elected');
+        this._emitElected(lock);
       }
 
       this.timeout = setTimeout(async () => {
@@ -75,41 +82,12 @@ class RedlockLeader extends EventEmitter {
       }, this.ttl / 2);
     } else {
       if (this.lock) {
-        this._isLeader = false;
-        this.lock = null;
-        this.emit('revoked');
+        this._emitRevoked();
       }
 
       this.timeout = setTimeout(async () => {
         await this.start();
       }, this.wait);
-    }
-  }
-
-  /**
-   * Renew elected leaders ttl.
-   *
-   * @returns {Promise<void>}
-   */
-  async _renew() {
-    if (this.lock) {
-      try {
-        await this.lock.extend(this.ttl);
-        this.emit('extended');
-        this.timeout = setTimeout(async () => {
-          await this._renew();
-        }, this.ttl / 2);
-      } catch (error) {
-        if (this.lock) {
-          this._isLeader = false;
-          this.lock = null;
-          this.emit('revoked');
-        }
-
-        this.timeout = setTimeout(async () => {
-          await this.start();
-        }, this.wait);
-      }
     }
   }
 
@@ -121,6 +99,7 @@ class RedlockLeader extends EventEmitter {
   async stop() {
     if (this.timeout) {
       clearTimeout(this.timeout);
+      this.timeout = null;
     }
 
     try {
@@ -128,11 +107,64 @@ class RedlockLeader extends EventEmitter {
         await this.lock.unlock();
       }
     } catch (error) {
-
     }
 
     this._isLeader = false;
     this.lock = null;
+  }
+
+  /**
+   * Renew elected leaders ttl.
+   *
+   * @returns {Promise<void>}
+   * @private
+   */
+  async _renew() {
+    if (this.lock) {
+      try {
+        await this.lock.extend(this.ttl);
+
+        debug('Leader status of instance is extended for %d milliseconds.', this.ttl);
+        this.emit('extended');
+
+        this.timeout = setTimeout(async () => {
+          await this._renew();
+        }, this.ttl / 2);
+      } catch (error) {
+        if (this.lock) {
+          this._emitRevoked();
+        }
+
+        this.timeout = setTimeout(async () => {
+          await this.start();
+        }, this.wait);
+      }
+    }
+  }
+
+  /**
+   * Emit elected event.
+   *
+   * @param lock the lock
+   * @private
+   */
+  _emitElected(lock) {
+    debug('Instance is elected as the leader for %d milliseconds.', this.ttl);
+    this._isLeader = true;
+    this.lock = lock;
+    this.emit('elected');
+  }
+
+  /**
+   * Emit revoked event.
+   *
+   * @private
+   */
+  _emitRevoked() {
+    debug('Instance is no longer the leader.');
+    this._isLeader = false;
+    this.lock = null;
+    this.emit('revoked');
   }
 }
 
