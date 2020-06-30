@@ -2,12 +2,12 @@ Redlock Leader
 ==============
 Leader election by Redlock Distributed Lock Manager algorithm.
 
-##Install
+## Install
 ```
 npm install --save https://github.com/torghul/redlock-leader.git
 ```
 
-##Usage
+## Usage
 ``` javascript
 const RedlockLeader = require('./index');
 const client = require('redis').createClient({
@@ -37,8 +37,8 @@ leader.on('error', (e) => console.log(`${process.pid} ${new Date()} ERROR`, e));
 leader.start();
 ```
 
-##API
-###new RedlockLeader(clients, options)
+## API
+### new RedlockLeader(clients, options)
 Create a new leader selector.
 
   * `clients` An array of redis client instances.
@@ -47,16 +47,16 @@ Create a new leader selector.
     * `wait` Time between 2 tries getting elected in milliseconds, defaults to 1000 milliseconds
     * `key` A string key identifying the lock, defaults to 'redlock-leader'
 
-###start()
+### start()
 Starts leader selection process.
 
-###stop()
+### stop()
 Stops leader selection process.
 
-###isLeader
+### isLeader
 Indicates whether the instance is the leader or not.
 
-###Events
+### Events
 `elected` when instance becomes the leader
 
 `revoked` when instance gets revoked from its leadership
@@ -65,5 +65,5 @@ Indicates whether the instance is the leader or not.
 
 `error` when an error occurred at a redis client
 
-###How it works
+### How it works
 https://redis.io/topics/distlock
