@@ -1,6 +1,6 @@
 {
   "name": "redlock-leader",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "A Leader selection module using redlock distributed lock algorithm",
   "main": "index.js",
   "scripts": {
