@@ -4,7 +4,7 @@ Leader election by Redlock Distributed Lock Manager algorithm.
 
 ## Install
 ```
-npm install --save https://github.com/torghul/redlock-leader.git
+npm install redlock-leader
 ```
 
 ## Usage
