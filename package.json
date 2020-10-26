@@ -1,7 +1,7 @@
 {
   "name": "redlock-leader",
   "version": "1.0.0",
-  "description": "A Leader selection module using redlock distributed lock algorithm\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[D\u001b[F",
+  "description": "A Leader selection module using redlock distributed lock algorithm",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
