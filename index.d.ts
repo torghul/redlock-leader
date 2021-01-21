@@ -1,7 +1,7 @@
 /// <reference types="node" />
 import { EventEmitter } from "events";
 
-export declare class RedlockLeader extends EventEmitter {
+declare class RedlockLeader extends EventEmitter {
   constructor(
     clients: any[],
     options?: {
@@ -16,3 +16,5 @@ export declare class RedlockLeader extends EventEmitter {
   on(event: "elected" | "extended" | "revoked", cb: () => void): this;
   on(event: "error", cb: (error: Error) => void): this;
 }
+
+export default RedlockLeader
