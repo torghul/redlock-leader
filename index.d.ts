@@ -17,4 +17,4 @@ declare class RedlockLeader extends EventEmitter {
   on(event: "error", cb: (error: Error) => void): this;
 }
 
-export default RedlockLeader
+export = RedlockLeader
