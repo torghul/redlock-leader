@@ -4,7 +4,7 @@ import { EventEmitter } from "events";
 export declare class RedlockLeader extends EventEmitter {
   constructor(
     clients: any[],
-    options: {
+    options?: {
       ttl?: number;
       wait?: number;
       key?: string;
