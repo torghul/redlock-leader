@@ -45,7 +45,7 @@ class RedlockLeader extends EventEmitter {
     this.redlock.on('clientError', (error) => {
       debug('Error from redis client. Error: %o', error);
       if(this.listenerCount('error') > 0) {
-        this.emit('error', {error});
+        this.emit('error', error);
       }
     });
   }
